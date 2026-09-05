@@ -111,16 +111,27 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 
 // Initialize Leaflet Map
 let map, marker;
-const defaultLat = 22.50;  // Approximate for Rajdanga
-const defaultLng = 88.39;
+
+// 118/1 North Purbachal Road, Kalitala (Near Tarke Bridge), Haltu, Kolkata - 700078
+// NOTE: To fine-tune the pin, open Google Maps, right-click the exact clinic
+// building, copy the coordinates, then replace the two values below.
+const clinicLat = 22.50701450599265;
+const clinicLng = 88.39686998959031;
+const clinicAddress = "118/1 North Purbachal Road, Kalitala (Near Tarke Bridge), Haltu, Kolkata - 700078";
+const directionsUrl = "https://www.google.com/maps/dir/?api=1&destination=" + clinicLat + "," + clinicLng;
 
 function initMap() {
-  map = L.map('locationMap').setView([defaultLat, defaultLng], 15);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  const mapEl = document.getElementById('locationMap');
+  if (!mapEl || typeof L === 'undefined') return; // guard: Leaflet CDN failed or element missing
+
+  if (map) { map.remove(); map = null; } // prevent "Map container is already initialized" error
+
+  map = L.map('locationMap', { scrollWheelZoom: false }).setView([clinicLat, clinicLng], 16);
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
 
   const tealIcon = L.divIcon({
     className: 'custom-marker',
@@ -129,11 +140,27 @@ function initMap() {
     iconAnchor: [20, 20]
   });
 
-  marker = L.marker([defaultLat, defaultLng], { icon: tealIcon }).addTo(map);
-  marker.bindPopup("<b>ORO-Care Dental Clinic</b><br>118/1 North Purbachal Road, Kalitala (Near Tarke Bridge), Haltu, Kolkata").openPopup();
+  marker = L.marker([clinicLat, clinicLng], { icon: tealIcon }).addTo(map);
+  marker.bindPopup(
+    "<b>ORO-Care Dental Clinic</b><br>" + clinicAddress + "<br>" +
+    '<a href="' + directionsUrl + '" target="_blank" rel="noopener noreferrer" style="color:#3a990b;font-weight:600;">Get Directions on Google Maps ↗</a>'
+  ).openPopup();
+
+  // Fix grey/tileless map if the container size changed after initialization
+  setTimeout(function () { if (map) map.invalidateSize(); }, 300);
 }
 
-initMap();
+// Initialize only after ALL resources (images, fonts, preloader) are done
+window.addEventListener('load', function () {
+  initMap();
+});
+
+// Re-fit tiles on window resize (debounced)
+let mapResizeTimer;
+window.addEventListener('resize', function () {
+  clearTimeout(mapResizeTimer);
+  mapResizeTimer = setTimeout(function () { if (map) map.invalidateSize(); }, 200);
+});
 
 // Lightbox
 function openLightbox(src) {
