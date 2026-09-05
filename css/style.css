@@ -52,6 +52,13 @@
     .service-card:hover .service-icon { transform: scale(1.08) rotate(-4deg); background: #46b80d !important; }
     .service-card:hover .service-icon i { color: white !important; }
     .service-icon { transition: all 0.4s ease; }
+    .service-image img {
+    transition: transform 0.5s ease;
+    }
+
+    .service-card:hover .service-image img {
+        transform: scale(1.06);
+    }
 
     .stat-card {
       transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease;
@@ -134,6 +141,13 @@
     .mobile-cta { display: none; }
     @media (max-width: 767px) {
       .mobile-cta { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 12px 16px; z-index: 90; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+       /* Move WhatsApp button above the mobile Book Now bar */
+    .whatsapp-float {
+      bottom: 100px;
+      }
+      #backToTop {
+        bottom: 175px;
+    }
       body { padding-bottom: 70px; }
       .review-card { flex-basis: 320px; }
       .reviews-track { gap: 16px; animation-duration: 24s; }
